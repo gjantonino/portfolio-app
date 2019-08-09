@@ -1,0 +1,27 @@
+[
+    {
+        "sectionTitle": "Black & White",
+        "galleryPath": "./gallery-images/bw/",
+        "order": 3
+    },
+    {
+        "sectionTitle": "Street Colors",
+        "galleryPath": "./gallery-images/color/",
+        "order": 1
+    },
+    {
+        "sectionTitle": "Texturas del Norte",
+        "galleryPath": "./gallery-images/norte/",
+        "order": 3
+    },
+    {
+        "sectionTitle": "Medium Format",
+        "galleryPath": "./gallery-images/rollei/",
+        "order": 5
+    },
+    {
+        "sectionTitle": "Night & Neons",
+        "galleryPath": "./gallery-images/night/",
+        "order": 5
+    }
+]
