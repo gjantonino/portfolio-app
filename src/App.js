@@ -125,10 +125,6 @@ class Gallery extends React.Component {
           onClose={this.closeLightbox}
           preventScroll={this.props.preventScroll}
           showThumbnails={this.props.showThumbnails}
-          spinner={this.props.spinner}
-          spinnerColor={this.props.spinnerColor}
-          spinnerSize={this.props.spinnerSize}
-          theme={this.props.theme}
         />
       </div>
     )
@@ -138,7 +134,7 @@ class Gallery extends React.Component {
 
 function NavBar(props) {
   return (
-    <div className="header-nav row align-items-center justify-content-around" style={{ Width: 90 + '%' }}>
+    <div className="header-nav row align-items-center justify-content-center justify-content-md-around" style={{ Width: 90 + '%' }}>
       <div className="col-xs-auto text-center pl-4 pr-4">
         <a className="logo-link" href="/">GREGORIO ANTONINO</a>
       </div>
