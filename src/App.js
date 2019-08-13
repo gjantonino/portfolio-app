@@ -38,7 +38,7 @@ class Image extends React.Component {
           onClick={(e) => this.props.onClick(e)}
           src={this.props.src}
           className="masonry-img"
-          onLoad={(e) => this.handleImgLoad(e,this.props.index)}
+          onLoad={(e) => this.handleImgLoad(e, this.props.index)}
           alt={this.props.alt}
         >
         </img>
@@ -48,9 +48,19 @@ class Image extends React.Component {
   }
 }
 
+function Spinner(props) {
+  if (props.hideGallery) {
+    return (
+      <div className="spinnerContainer">
+        <div className="lds-dual-ring"></div>
+      </div>
+      
+    )
+  } else return null;
+}
 
 class Gallery extends React.Component {
-  
+
   constructor(props) {
     super(props);
     this.state = {
@@ -59,7 +69,7 @@ class Gallery extends React.Component {
       imagesLoaded: 0,
       hideGallery: true
     }
-    
+
     this.closeLightbox = this.closeLightbox.bind(this);
     this.gotoNext = this.gotoNext.bind(this);
     this.gotoPrevious = this.gotoPrevious.bind(this);
@@ -103,19 +113,21 @@ class Gallery extends React.Component {
     this.gotoNext();
   }
 
-  incrementImagesLoaded () {
+  incrementImagesLoaded() {
     if (this.state.imagesLoaded === (this.props.imageSet.length - 1)) {
       this.setState({
         imagesLoaded: 0,
-        hideGallery: false});
+        hideGallery: false
+      });
     } else {
       this.setState({
         hideGallery: true,
-        imagesLoaded: this.state.imagesLoaded + 1})
+        imagesLoaded: this.state.imagesLoaded + 1
+      })
     }
   }
-  componentDidMount () {
-    this.setState({hideGallery: true})
+  componentDidMount() {
+    this.setState({ hideGallery: true })
   }
 
   render() {
@@ -126,19 +138,15 @@ class Gallery extends React.Component {
             return (
               <Image
                 key={index}
-                onClick={(e) => this.openLightbox(index,e)}
+                onClick={(e) => this.openLightbox(index, e)}
                 src={element.src}
                 alt=""
-                incrementImages = {()=> this.incrementImagesLoaded()}
+                incrementImages={() => this.incrementImagesLoaded()}
               />
             );
           })}
         </div>
-        <div hidden={!this.state.hideGallery} className="d-flex justify-content-center align-items-center">
-          <div id="loader" className="spinner-grow" role="status">
-          <span className="sr-only">Loading...</span>
-          </div>
-        </div>
+        <Spinner hideGallery={this.state.hideGallery} />
         <Lightbox
           currentImage={this.state.currentImage}
           images={this.props.imageSet}
@@ -159,6 +167,8 @@ class Gallery extends React.Component {
     )
   }
 }
+
+
 
 function NavBar(props) {
   return (
@@ -196,9 +206,7 @@ class App extends React.Component {
       imageSet: [],
 
     }
-
-    
-  this.sectionClick = this.sectionClick.bind(this);
+    this.sectionClick = this.sectionClick.bind(this);
   }
 
   componentDidMount() {
@@ -217,10 +225,10 @@ class App extends React.Component {
       this.setState({ imageArray: response.data });
       let images = [];
       this.state.imageArray.map((image) => images.push({ src: this.state.currentPath + image }));
-      this.setState({ 
-          imageArray: response.data, 
-          imageSet: images,
-        });
+      this.setState({
+        imageArray: response.data,
+        imageSet: images,
+      });
     });
 
   };
