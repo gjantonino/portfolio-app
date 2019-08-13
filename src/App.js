@@ -1,62 +1,74 @@
 import React from 'react';
 import sections from './sections.json';
-import Lightbox from 'react-images-extended'
+import Lightbox from 'react-images-extended';
+
 const axios = require('axios');
 
-
 class Image extends React.Component {
+
   constructor(props) {
     super(props);
     this.state = {
-      imageLoaded: false,
       imageClass: "",
-      aspectRatio: 0
+      aspectRatio: 0,
     }
   }
-  setClassName({target: img}) {
-    this.setState({imageLoaded: true});
 
-    let ar = img.naturalWidth/ img.naturalHeight;
-    this.setState({aspectRatio: ar});
+  handleImgLoad({ target: img }) {
+    let ar = img.naturalWidth / img.naturalHeight;
+    this.setState({ aspectRatio: ar });
 
     if (ar > 1) {
-      this.setState({imageClass: 'masonry-brick masonry-brick--h masonry-horizontal'});
+      this.setState({ imageClass: 'masonry-brick masonry-brick--h masonry-horizontal' });
     }
     else {
       if (ar < 1) {
-        this.setState({imageClass: 'masonry-brick masonry-brick--h masonry-vertical'});
+        this.setState({ imageClass: 'masonry-brick masonry-brick--h masonry-vertical' });
       } else {
-        this.setState({imageClass: 'masonry-brick masonry-brick--h masonry-square'});
+        this.setState({ imageClass: 'masonry-brick masonry-brick--h masonry-square' });
       }
-      
-    }
-  }
 
+    }
+    this.props.incrementImages();
+  }
   render() {
     return (
       <figure className={this.state.imageClass}>
         <img
-          onClick={(e) => this.props.onClick(e)} 
-          src={this.props.src} 
+          onClick={(e) => this.props.onClick(e)}
+          src={this.props.src}
           className="masonry-img"
-          onLoad={(e) => this.setClassName(e)}
+          onLoad={(e) => this.handleImgLoad(e, this.props.index)}
           alt={this.props.alt}
-          >
+        >
         </img>
       </figure>
-      
+
     )
   }
 }
 
+function Spinner(props) {
+  if (props.hideGallery) {
+    return (
+      <div className="spinnerContainer">
+        <div className="lds-dual-ring"></div>
+      </div>
+      
+    )
+  } else return null;
+}
+
 class Gallery extends React.Component {
+
   constructor(props) {
     super(props);
-
     this.state = {
       lightboxIsOpen: false,
       currentImage: 0,
-    };
+      imagesLoaded: 0,
+      hideGallery: true
+    }
 
     this.closeLightbox = this.closeLightbox.bind(this);
     this.gotoNext = this.gotoNext.bind(this);
@@ -66,10 +78,10 @@ class Gallery extends React.Component {
     this.openLightbox = this.openLightbox.bind(this);
   }
 
-  openLightbox(index, event) {
+  openLightbox(i, event) {
     event.preventDefault();
     this.setState({
-      currentImage: index,
+      currentImage: i,
       lightboxIsOpen: true,
     });
   }
@@ -89,31 +101,52 @@ class Gallery extends React.Component {
       currentImage: this.state.currentImage + 1,
     });
   }
+
   gotoImage(index) {
     this.setState({
       currentImage: index,
     });
   }
+
   handleClickImage() {
-    if (this.state.currentImage === this.props.images.length - 1) return;
+    if (this.state.currentImage === this.props.imageSet.length - 1) return;
     this.gotoNext();
+  }
+
+  incrementImagesLoaded() {
+    if (this.state.imagesLoaded === (this.props.imageSet.length - 1)) {
+      this.setState({
+        imagesLoaded: 0,
+        hideGallery: false
+      });
+    } else {
+      this.setState({
+        hideGallery: true,
+        imagesLoaded: this.state.imagesLoaded + 1
+      })
+    }
+  }
+  componentDidMount() {
+    this.setState({ hideGallery: true })
   }
 
   render() {
     return (
-      <div id="cont-1" className="gallery-container fade-in masonry masonry--h pb-3">
-        { 
-          this.props.imageSet.map((element, index) => {
+      <div>
+        <div hidden={this.state.hideGallery} id="cont-1" className="gallery-container fade-in masonry masonry--h pb-3">
+          {this.props.imageSet.map((element, index) => {
             return (
-                <Image
-                  key={index}
-                  onClick={(e) => this.openLightbox(index, e)}
-                  src={element.src}
-                  alt=""
-                />
-            )
-          })
-        }
+              <Image
+                key={index}
+                onClick={(e) => this.openLightbox(index, e)}
+                src={element.src}
+                alt=""
+                incrementImages={() => this.incrementImagesLoaded()}
+              />
+            );
+          })}
+        </div>
+        <Spinner hideGallery={this.state.hideGallery} />
         <Lightbox
           currentImage={this.state.currentImage}
           images={this.props.imageSet}
@@ -129,8 +162,9 @@ class Gallery extends React.Component {
       </div>
     )
   }
-
 }
+
+
 
 function NavBar(props) {
   return (
@@ -166,14 +200,18 @@ class App extends React.Component {
       imageArray: [],
       currentPath: sections[0].galleryPath,
       imageSet: [],
+
     }
+    this.sectionClick = this.sectionClick.bind(this);
+  }
+
+  componentDidMount() {
     axios.get(this.state.currentPath).then((response) => {
       this.setState({ imageArray: response.data });
       let images = [];
       this.state.imageArray.map((image) => images.push({ src: this.state.currentPath + image }));
       this.setState({ imageSet: images });
     });
-
   }
 
   sectionClick(i, path) {
@@ -183,7 +221,10 @@ class App extends React.Component {
       this.setState({ imageArray: response.data });
       let images = [];
       this.state.imageArray.map((image) => images.push({ src: this.state.currentPath + image }));
-      this.setState({ imageSet: images, galleryChange: true });
+      this.setState({
+        imageArray: response.data,
+        imageSet: images,
+      });
     });
 
   };
@@ -192,10 +233,13 @@ class App extends React.Component {
     return (
       <div className="App">
         <NavBar onClick={(i, path) => this.sectionClick(i, path)} sections={this.state.sections} currentSection={this.state.currentSection} />
-        <Gallery imageSet={this.state.imageSet} galleryPath={this.state.currentPath} />
+
+        <Gallery
+          imageSet={this.state.imageSet}
+          galleryPath={this.state.currentPath}
+        />
       </div>
     );
   }
 }
-
 export default App;
