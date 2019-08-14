@@ -54,7 +54,7 @@ function Spinner(props) {
       <div className="spinnerContainer">
         <div className="lds-dual-ring"></div>
       </div>
-      
+
     )
   } else return null;
 }
@@ -206,8 +206,10 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    axios.get(this.state.currentPath).then((response) => {
-      this.setState({ imageArray: response.data });
+    
+    fetch('/dirfiles.php?path=' + this.state.currentPath).then((response)=> response.json())
+    .then(json => {
+      this.setState({ imageArray: json });
       let images = [];
       this.state.imageArray.map((image) => images.push({ src: this.state.currentPath + image }));
       this.setState({ imageSet: images });
@@ -215,18 +217,17 @@ class App extends React.Component {
   }
 
   sectionClick(i, path) {
-    this.setState({ currentSection: i });
-    this.setState({ currentPath: path });
-    axios.get(path).then((response) => {
-      this.setState({ imageArray: response.data });
+    fetch('/dirfiles.php?path=' + path).then((response)=> response.json())
+    .then(json => {
       let images = [];
-      this.state.imageArray.map((image) => images.push({ src: this.state.currentPath + image }));
-      this.setState({
-        imageArray: response.data,
+      json.map((image) => images.push({ src: path + image }));
+      this.setState({ 
         imageSet: images,
+        currentSection: i,
+        currentPath: path,
+        imageArray: json,
       });
     });
-
   };
 
   render() {
