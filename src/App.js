@@ -2,8 +2,6 @@ import React from 'react';
 import sections from './sections.json';
 import Lightbox from 'react-images-extended';
 
-const axios = require('axios');
-
 class Image extends React.Component {
 
   constructor(props) {
@@ -67,7 +65,7 @@ class Gallery extends React.Component {
       lightboxIsOpen: false,
       currentImage: 0,
       imagesLoaded: 0,
-      hideGallery: true
+      hideGallery: true,
     }
 
     this.closeLightbox = this.closeLightbox.bind(this);
@@ -130,6 +128,12 @@ class Gallery extends React.Component {
     this.setState({ hideGallery: true })
   }
 
+  componentWillUpdate(nextProps, nextState){
+    if (nextProps.galleryPath != this.props.galleryPath) {
+      this.setState({hideGallery: true})
+    }
+  }
+
   render() {
     return (
       <div>
@@ -179,7 +183,7 @@ function NavBar(props) {
             <div key={index} className="col-auto">
               <button
                 onClick={() => props.onClick(index, section.galleryPath)}
-                className="btn btn-link h-nav-item " >
+                className="btn btn-link h-nav-item" >
                 {section.sectionTitle.toUpperCase()}
               </button>
             </div>
@@ -200,6 +204,7 @@ class App extends React.Component {
       imageArray: [],
       currentPath: sections[0].galleryPath,
       imageSet: [],
+      hideGallery: false,
 
     }
     this.sectionClick = this.sectionClick.bind(this);
