@@ -1,6 +1,7 @@
 import React from 'react';
 import sections from './sections.json';
 import Lightbox from 'react-images-extended';
+import { useAuth0 } from "./react-auth0-wrapper";
 
 class Image extends React.Component {
 
@@ -171,6 +172,7 @@ class Gallery extends React.Component {
 
 
 function NavBar(props) {
+  const { isAuthenticated, loginWithRedirect, logout } = useAuth0();
   return (
     <div className="header-nav row align-items-center justify-content-center justify-content-md-around" style={{ Width: 90 + '%' }}>
       <div className="col-xs-auto text-center pl-4 pr-4">
@@ -191,6 +193,18 @@ function NavBar(props) {
         }
         )
       }
+      <div>
+        {!isAuthenticated && (
+          <button
+            onClick={() =>
+              loginWithRedirect({})
+            }
+          >
+            Log in
+          </button>
+        )}
+        {isAuthenticated && <button onClick={() => logout()}>Log out</button>}
+      </div>
     </div>
   )
 }
@@ -212,7 +226,7 @@ class App extends React.Component {
 
   componentDidMount() {
     
-    fetch('/dirfiles.php?path=' + this.state.currentPath).then((response)=> response.json())
+    fetch('http://localhost/dirfiles.php?path=' + this.state.currentPath).then((response)=> response.json())
     .then(json => {
       this.setState({ imageArray: json });
       let images = [];
