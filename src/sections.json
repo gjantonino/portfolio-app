@@ -2,26 +2,42 @@
     {
         "sectionTitle": "Black & White",
         "galleryPath": "gallery-images/bw/",
-        "order": 2
+        "order": 1
     },
     {
         "sectionTitle": "Street Colors",
         "galleryPath": "gallery-images/color/",
-        "order": 1
+        "order": 2
     },
     {
         "sectionTitle": "Texturas del Norte",
         "galleryPath": "gallery-images/norte/",
-        "order": 3
+        "order": 5
     },
     {
         "sectionTitle": "Medium Format",
         "galleryPath": "gallery-images/rollei/",
-        "order": 5
+        "order": 6
     },
     {
         "sectionTitle": "Night & Neons",
         "galleryPath": "gallery-images/night/",
+        "order": 7
+    },
+    {
+        "sectionTitle": "Santiago de Chile",
+        "galleryPath": "gallery-images/scl/",
+        "order": 8
+    },
+    {
+        "sectionTitle": "Early New York",
+        "galleryPath": "gallery-images/NYC2012/",
+        "order": 3
+    },
+    {
+        "sectionTitle": "Buenos Aires",
+        "galleryPath": "gallery-images/buenosaires/",
         "order": 4
     }
+
 ]

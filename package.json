@@ -4,16 +4,22 @@
   "private": true,
   "dependencies": {
     "@auth0/auth0-spa-js": "^1.2.3",
-    "axios": "^0.19.0",
+    "@fortawesome/fontawesome-svg-core": "^1.2.22",
+    "@fortawesome/free-solid-svg-icons": "^5.10.2",
+    "@fortawesome/react-fontawesome": "^0.1.4",
     "bootstrap": "^4.3.1",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
+    "react-fittext": "^1.0.0",
     "react-images-extended": "^0.6.4",
     "react-images-loaded": "^2.0.0",
+    "react-material-ui": "0.0.1",
     "react-native": "^0.60.4",
     "react-on-images-loaded": "^2.2.3",
     "react-router-dom": "^5.0.1",
     "react-scripts": "^3.0.1",
+    "react-socks": "^2.1.0",
+    "react-spring-lightbox": "^1.1.7",
     "simple-lightbox": "^2.1.0"
   },
   "scripts": {
@@ -36,5 +42,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "enzyme": "^3.10.0"
   }
 }

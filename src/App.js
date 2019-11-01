@@ -1,50 +1,44 @@
-import React from 'react';
-import sections from './sections.json';
-import Lightbox from 'react-images-extended';
-import { useAuth0 } from "./react-auth0-wrapper";
+import React, { useState, useEffect } from 'react';
+import section_file from './sections.json';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCog, faInstagram, faEnvelop} from '@fortawesome/free-solid-svg-icons';
+import Lightbox from 'react-spring-lightbox';
 
-class Image extends React.Component {
+function Image(props) {
+  const [imageClass, setImageClass] = useState("");
+  const [aspectRatio, setAspectRatio] = useState(0);
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      imageClass: "",
-      aspectRatio: 0,
-    }
-  }
 
-  handleImgLoad({ target: img }) {
+  const handleImgLoad = ({ target: img }) => {
     let ar = img.naturalWidth / img.naturalHeight;
-    this.setState({ aspectRatio: ar });
+    setAspectRatio({ aspectRatio: ar });
 
     if (ar > 1) {
-      this.setState({ imageClass: 'masonry-brick masonry-brick--h masonry-horizontal' });
+      setImageClass('masonry-brick masonry-brick--h masonry-horizontal');
     }
     else {
       if (ar < 1) {
-        this.setState({ imageClass: 'masonry-brick masonry-brick--h masonry-vertical' });
+        setImageClass('masonry-brick masonry-brick--h masonry-vertical');
       } else {
-        this.setState({ imageClass: 'masonry-brick masonry-brick--h masonry-square' });
+        setImageClass('masonry-brick masonry-brick--h masonry-square');
       }
 
     }
-    this.props.incrementImages();
+    props.incrementImages();
   }
-  render() {
-    return (
-      <figure className={this.state.imageClass}>
-        <img
-          onClick={(e) => this.props.onClick(e)}
-          src={this.props.src}
-          className="masonry-img"
-          onLoad={(e) => this.handleImgLoad(e, this.props.index)}
-          alt={this.props.alt}
-        >
-        </img>
-      </figure>
+  return (
+    <figure className={imageClass}>
+      <img
+        onClick={(e) => props.onClick(e)}
+        src={props.src}
+        className="masonry-img"
+        onLoad={(e) => handleImgLoad(e, props.index)}
+        alt={props.alt}
+      >
+      </img>
+    </figure>
 
-    )
-  }
+  )
 }
 
 function Spinner(props) {
@@ -58,208 +52,170 @@ function Spinner(props) {
   } else return null;
 }
 
-class Gallery extends React.Component {
+function Gallery(props) {
+  const [lightBoxOpen, setLightBoxOpen] = useState(false);
+  const [hideGallery, setHideGallery] = useState(true);
+  const [currentImage, setCurrentImage] = useState(0);
+  const [imagesLoaded, setImagesLoaded] = useState(0);
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      lightboxIsOpen: false,
-      currentImage: 0,
-      imagesLoaded: 0,
-      hideGallery: true,
-    }
-
-    this.closeLightbox = this.closeLightbox.bind(this);
-    this.gotoNext = this.gotoNext.bind(this);
-    this.gotoPrevious = this.gotoPrevious.bind(this);
-    this.gotoImage = this.gotoImage.bind(this);
-    this.handleClickImage = this.handleClickImage.bind(this);
-    this.openLightbox = this.openLightbox.bind(this);
-  }
-
-  openLightbox(i, event) {
-    event.preventDefault();
-    this.setState({
-      currentImage: i,
-      lightboxIsOpen: true,
-    });
-  }
-  closeLightbox() {
-    this.setState({
-      currentImage: 0,
-      lightboxIsOpen: false,
-    });
-  }
-  gotoPrevious() {
-    this.setState({
-      currentImage: this.state.currentImage - 1,
-    });
-  }
-  gotoNext() {
-    this.setState({
-      currentImage: this.state.currentImage + 1,
-    });
-  }
-
-  gotoImage(index) {
-    this.setState({
-      currentImage: index,
-    });
-  }
-
-  handleClickImage() {
-    if (this.state.currentImage === this.props.imageSet.length - 1) return;
-    this.gotoNext();
-  }
-
-  incrementImagesLoaded() {
-    if (this.state.imagesLoaded === (this.props.imageSet.length - 1)) {
-      this.setState({
-        imagesLoaded: 0,
-        hideGallery: false
-      });
+  const incrementImagesLoaded = () => {
+    if (imagesLoaded === (props.imageSet.length - 1)) {
+      setHideGallery(false);
     } else {
-      this.setState({
-        hideGallery: true,
-        imagesLoaded: this.state.imagesLoaded + 1
-      })
+      setImagesLoaded(imagesLoaded + 1);
+      setHideGallery(true);
     }
   }
-  componentDidMount() {
-    this.setState({ hideGallery: true })
-  }
+  const gotoPrevious = () =>
+    currentImage > 0 && setCurrentImage(currentImage - 1);
 
-  componentWillUpdate(nextProps, nextState){
-    if (nextProps.galleryPath != this.props.galleryPath) {
-      this.setState({hideGallery: true})
-    }
+  const gotoNext = () =>
+    currentImage + 1 < props.imageSet.length &&
+    setCurrentImage(currentImage + 1);
+  const handleClose = () => {
+    setLightBoxOpen(false);
   }
+  useEffect(() => { setHideGallery(true) }, []);
 
-  render() {
-    return (
-      <div>
-        <div hidden={this.state.hideGallery} id="cont-1" className="gallery-container fade-in masonry masonry--h pb-3">
-          {this.props.imageSet.map((element, index) => {
-            return (
-              <Image
-                key={index}
-                onClick={(e) => this.openLightbox(index, e)}
-                src={element.src}
-                alt=""
-                incrementImages={() => this.incrementImagesLoaded()}
-              />
-            );
-          })}
-        </div>
-        <Spinner hideGallery={this.state.hideGallery} />
-        <Lightbox
-          currentImage={this.state.currentImage}
-          images={this.props.imageSet}
-          isOpen={this.state.lightboxIsOpen}
-          onClickImage={this.handleClickImage}
-          onClickNext={this.gotoNext}
-          onClickPrev={this.gotoPrevious}
-          onClickThumbnail={this.gotoImage}
-          onClose={this.closeLightbox}
-          preventScroll={this.props.preventScroll}
-          showThumbnails={this.props.showThumbnails}
-        />
+  useEffect(() => {
+    setHideGallery(true);
+    setImagesLoaded(0)
+  },
+    [props.galleryPath]);
+
+  return (
+    <div>
+      <div hidden={hideGallery} id="cont-1" className="gallery-container fade-in masonry masonry--h pb-3">
+        {props.imageSet.map((element, index) => {
+          return (
+            <Image
+              key={index}
+              onClick={() => { setLightBoxOpen(true); setCurrentImage(index) }}
+              src={element.src}
+              alt=""
+              incrementImages={() => incrementImagesLoaded()}
+            />
+          );
+        })}
       </div>
-    )
-  }
+      <Spinner hideGallery={hideGallery} />
+      <Lightbox
+        isOpen={lightBoxOpen}
+        onPrev={gotoPrevious}
+        onNext={gotoNext}
+        images={props.imageSet}
+        currentIndex={currentImage}
+      /* Add your own UI */
+        renderHeader= {() => (<LbHeader onClose={handleClose}/>)}
+      // renderFooter={() => (<CustomFooter />)}
+      // renderPrevButton={() => (<CustomLeftArrowButton />)}
+      // renderNextButton={() => (<CustomRightArrowButton />)}
+
+      /* Add styling */
+      // className="cool-class"
+      style={{ background: "rgba(5, 5, 5, 0.9)"}}
+
+      /* Handle closing */
+      onClose={handleClose}
+
+      /* react-spring config for open/close animation */
+      pageTransitionConfig={{
+         from: { transform: "scale(0.75)", opacity: 0 },
+         enter: { transform: "scale(1)", opacity: 1 },
+         leave: { transform: "scale(0.75)", opacity: 0 },
+         config: { mass: 1, tension: 320, friction: 32 }
+       }}
+      />
+    </div>
+  )
+}
+function LbHeader(props) {
+  return (
+    <div className="lbheader text-right w-100 col">
+      <h3 onClick = {props.onClose}>CLOSE</h3>
+    </div>
+  )
 }
 
-
-
 function NavBar(props) {
-  const { isAuthenticated, loginWithRedirect, logout } = useAuth0();
   return (
-    <div className="header-nav row align-items-center justify-content-center justify-content-md-around" style={{ Width: 90 + '%' }}>
-      <div className="col-xs-auto text-center pl-4 pr-4">
+    <div className="header-nav row align-items-center justify-content-center">
+      <div className="col-xs-auto text-center pl-4 pr-4 mt-2">
         <a className="logo-link" href="/">GREGORIO ANTONINO</a>
       </div>
-      <div className="w-100 d-xl-none pb-1 pb-lg-4"></div>
+      <div className="w-100 pb-1 pb-lg-4"></div>
       {
         props.sections.map((section, index) => {
           return (
             <div key={index} className="col-auto">
               <button
-                onClick={() => props.onClick(index, section.galleryPath)}
-                className="btn btn-link h-nav-item" >
-                {section.sectionTitle.toUpperCase()}
+                onClick={() => { props.onClick(index, section.galleryPath) }}
+                className={"btn btn-link h-nav-item"}>
+                {section.sectionTitle.toLowerCase()}
               </button>
             </div>
           );
         }
         )
       }
-      <div>
-        {!isAuthenticated && (
-          <button
-            onClick={() =>
-              loginWithRedirect({})
-            }
-          >
-            Log in
-          </button>
-        )}
-        {isAuthenticated && <button onClick={() => logout()}>Log out</button>}
-      </div>
     </div>
   )
 }
 
-class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      currentSection: 0,
-      sections: sections.sort((a, b) => (a.order > b.order) ? 1 : ((b.order > a.order) ? -1 : 0)),
-      imageArray: [],
-      currentPath: sections[0].galleryPath,
-      imageSet: [],
-      hideGallery: false,
+function Footer() {
+  return (
+    <div id="contact" className="footer align-items-center justify-content-center">
+			<div className="row justify-content-center mx-auto w-100">			
+					<p><a href="http://instagram.com/gregoantonino">@gregoantonino - </a></p>
+					<p><a href="mailto:info@gregorioantonino.com">mail</a></p>
+			</div>
+			<p id="copyright-year" className="footnote text-center">{"All rights reserved - Gregorio Antonino " + (new Date().getFullYear())}</p>
+		</div>
+  )
+}
 
-    }
-    this.sectionClick = this.sectionClick.bind(this);
+function App() {
+  const [currentSection, setCurrentSection] = useState(0);
+  const [sections, setSections] = useState(section_file.sort((a, b) => (a.order > b.order) ? 1 : ((b.order > a.order) ? -1 : 0)));
+  const [imageArray, setImageArray] = useState([]);
+  const [currentPath, setCurrentPath] = useState(sections[0].galleryPath);
+  const [imageSet, setImageSet] = useState([]);
+  //const [hideGallery, setHideGallery] = useState([]);
+
+  useEffect(() => {
+    getImages(currentPath);
+  }, [currentPath]);
+
+  useEffect(() => {
+    let images = [];
+    imageArray.map((image) => images.push({ src: currentPath + image }));
+    setImageSet(images);
+  }, [imageArray]);
+
+  const getImages = async (path) => {
+    await fetch('/dirfiles.php?path=' + path).then((response) => response.json())
+      .then((json) => { setImageArray(json) })
   }
 
-  componentDidMount() {
-    
-    fetch('http://localhost/dirfiles.php?path=' + this.state.currentPath).then((response)=> response.json())
-    .then(json => {
-      this.setState({ imageArray: json });
-      let images = [];
-      this.state.imageArray.map((image) => images.push({ src: this.state.currentPath + image }));
-      this.setState({ imageSet: images });
-    });
-  }
-
-  sectionClick(i, path) {
-    fetch('/dirfiles.php?path=' + path).then((response)=> response.json())
-    .then(json => {
-      let images = [];
-      json.map((image) => images.push({ src: path + image }));
-      this.setState({ 
-        imageSet: images,
-        currentSection: i,
-        currentPath: path,
-        imageArray: json,
-      });
-    });
+  const sectionClick = (i, path) => {
+    setCurrentSection(i);
+    setCurrentPath(path);
   };
 
-  render() {
-    return (
-      <div className="App">
-        <NavBar onClick={(i, path) => this.sectionClick(i, path)} sections={this.state.sections} currentSection={this.state.currentSection} />
-
-        <Gallery
-          imageSet={this.state.imageSet}
-          galleryPath={this.state.currentPath}
-        />
-      </div>
-    );
-  }
+  return (
+    <div className="App">
+      <header>
+        <NavBar onClick={(i, path) => sectionClick(i, path)} sections={sections} currentSection={currentSection} />
+      </header>
+      <Gallery imageSet={imageSet} galleryPath={currentPath} />
+      <Footer/>
+    </div>
+  );
 }
 export default App;
+
+/*
+        <a href="/admin">
+          <FontAwesomeIcon icon={faCog} />
+        </a>
+      </div>*/
