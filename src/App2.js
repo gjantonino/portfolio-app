@@ -4,7 +4,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInstagram, faBars } from '@fortawesome/free-solid-svg-icons';
 import Lightbox from 'react-spring-lightbox';
 import ReactFitText from 'react-fittext';
-import listReactFiles from 'list-react-files'
 
 function Image(props) {
   const [imageClass, setImageClass] = useState("");
@@ -255,12 +254,13 @@ function App() {
   }, [imageArray]);
 
   const getImages = async (path) => {
-    /*await fetch('/dirfiles.php?path=' + path).then((response) => response.json())
-      .then((json) => { setImageArray(json) })*/
-      listReactFiles(path).then(files => {
+    //await fetch('/dirfiles.php?path=' + path).then((response) => response.json())
+    await fetch('/' + path).then((response) => response.json())
+      .then((json) => { console.log(json); setImageArray(json) })
+      /*listReactFiles(path).then(files => {
         setImageArray(files);
         console.log(files);
-      })
+      })*/
   }
 
   const sectionClick = (i, path, title) => {
